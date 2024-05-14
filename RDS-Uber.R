@@ -1,0 +1,27 @@
+library(tidyverse)
+library(tidytext)
+library(textdata)
+library(dplyr)
+library(stringr)
+library(reshape2)
+library(shiny)
+library(ggplot2)
+library(lubridate)
+library(ggthemes)
+library(DT)
+library(scales)
+library(leaflet)
+library(leaflet.extras)
+
+setwd('~/Documents/DATA332/Projects/Uber Data')
+
+df1 <- read.csv("uber-raw-data-apr14.csv")
+df2 <- read.csv("uber-raw-data-may14.csv")
+df3 <- read.csv("uber-raw-data-jun14.csv")
+df4 <- read.csv("uber-raw-data-jul14.csv")
+df5 <- read.csv("uber-raw-data-aug14.csv")
+df6 <- read.csv("uber-raw-data-sep14.csv")
+
+uber <- rbind(df1,df2,df3,df4,df5,df6)
+
+saveRDS(uber, file = "uber_data.rds")
