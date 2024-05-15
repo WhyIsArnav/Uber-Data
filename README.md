@@ -1,6 +1,6 @@
 # UBER DATA ANALYSIS
 
-## Author: Arnav Shrestha
+### Author: Arnav Shrestha
 
 <img src ="Images/UberImage.png" width = "450")
 
