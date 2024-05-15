@@ -63,89 +63,97 @@ uber$Minute <- as.numeric(uber$Minute)
 ## Data analysis 
 **1. Making pivot table for trips by hour and graph**
 ```r
-hour_data <- df_data %>%
-  group_by(hour) %>%
-  dplyr::summarize(Total = n()) 
-  
-ggplot(hour_data, aes(hour, Total)) + 
-  geom_bar( stat = "identity", fill = "violet", color = "steelblue") +
-  ggtitle("Trips Every Hour") +
-  theme(legend.position = "none") +
-  scale_y_continuous(labels = comma)
+trips_by_hour <- uber %>%
+  group_by(Hour) %>%
+  summarise(Count = n()) %>%
+  arrange(Hour)
+
+trips_by_hour_graph <- ggplot(trips_by_hour, aes(x = Hour, y = Count)) +
+  geom_bar(stat = "identity", fill = "skyblue", color = "black") +
+  labs(title = "Uber Trips by Hour", x = "Hour of the Day", y = "Number of Trips") +
+  scale_x_continuous(breaks = seq(0, 23, by = 1)) +
+  scale_y_continuous(labels = comma) +  # Use comma function to format y-axis labels with commas
+  theme_minimal()
 ```
 
 **2. Making pivot table for trips by hour each month and graph**
 ```r
-month_hour <- df_data %>%
-  group_by(month, hour) %>%
-  dplyr::summarize(Total = n())
+trips_by_month_hour <- uber %>%
+  group_by(Month, Hour) %>%
+  summarise(Count = n()) %>%
+  arrange(Month, Hour)
 
-ggplot(month_hour, aes(hour, Total, fill = month)) + 
-  geom_bar( stat = "identity") +
-  ggtitle("Trips by Hour and Month") +
-  scale_y_continuous(labels = comma)
+trips_by_month_hour_graph <- ggplot(trips_by_month_hour, aes(x = Hour, y = Count, fill = factor(Month, levels = 1:12, labels = month.name))) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Uber Trips by Hour and Month", x = "Hour of the Day", y = "Number of Trips", fill = "Month") +
+  scale_x_continuous(breaks = seq(0, 23, by = 1)) +
+  scale_fill_brewer(palette = "Set3") +  
+  theme_minimal()
 ```
 
 **3. Making pivot table for trips each day and graph**
 ```r
-day_group <- df_data %>%
-  group_by(day) %>%
-  dplyr::summarize(Total = n()) 
+trips_by_day <- uber %>%
+  group_by(Day) %>%
+  summarise(Count = n()) %>%
+  arrange(Day)
 
-
-ggplot(day_group, aes(day, Total)) + 
-  geom_bar( stat = "identity", fill = "darkblue") +
-  ggtitle("Trips Every Day") +
-  theme(legend.position = "none") +
-  scale_y_continuous(labels = comma)
+trips_by_day_graph <- ggplot(trips_by_day, aes(x = Day, y = Count)) +
+  geom_bar(stat = "identity", fill = "skyblue", color = "black") +
+  labs(title = "Uber Trips by Day of the Month", x = "Day of the Month", y = "Number of Trips") +
+  scale_x_continuous(breaks = unique(trips_by_day$Day)) +  # Set breaks based on unique days in the dataset
+  theme_minimal()
 ```
 
 **4. Making pivot table for trips each day during the month and graph**
 
 ```r
-day_month_group <- df_data %>%
-  group_by(month, day) %>%
-  dplyr::summarize(Total = n())
+trips_by_month_day <- uber %>%
+  group_by(Month, Day, Weekday = weekdays(Date)) %>%
+  summarise(Trip_Count = n()) %>%
+  arrange(Month, Day) 
 
-ggplot(day_month_group, aes(day, Total, fill = month)) + 
-  geom_bar( stat = "identity") +
-  ggtitle("Trips by Day and Month") +
-  scale_y_continuous(labels = comma) +
-  scale_fill_manual(values = colors)
+trips_by_month_day_graph <- ggplot(trips_by_month_day, aes(x = Weekday, y = Trip_Count, fill = factor(Month))) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(x = "Day of the Week", y = "Number of Trips", fill = "Month") +
+  scale_fill_discrete(name = "Month", labels = c("Apr", "May", "Jun", "Jul", "Aug", "Sep")) +  # Customize month labels
+  theme_minimal() +  # Optional: Use a minimal theme
+  ggtitle("Number of Uber Trips by Month and Day of the Week") 
 
 ```
 
-**5. Making pivot table for trips each month and graph**
+**5. Making pivot table for trips each month by base and graph**
 
 ```r
-month_group <- df_data %>%
-  group_by(month) %>%
-  dplyr::summarize(Total = n()) 
+trips_by_base_month <- uber %>%
+  group_by(Base, Month) %>%
+  summarise(Trip_Count = n()) %>%
+  arrange(Month, Base) 
 
-
-
-ggplot(month_group , aes(month, Total, fill = month)) + 
-  geom_bar( stat = "identity") +
-  ggtitle("Trips by Month") +
-  theme(legend.position = "none") +
-  scale_y_continuous(labels = comma) +
-  scale_fill_manual(values = colors)
+trips_by_base_month_graph <- ggplot(trips_by_base_month, aes(x = Base, y = Trip_Count, fill = factor(Month))) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(x = "Base", y = "Number of Trips", fill = "Month") +
+  scale_fill_discrete(name = "Month", labels = c("Apr", "May", "Jun", "Jul", "Aug", "Sep")) +  
+  theme_minimal() +  
+  ggtitle("Number of Uber Trips by Base and Month") +
+  scale_y_continuous(labels = scales::comma) 
 ```
 
-**6. Making pivot table for trips each month with weekdays and graph**
+**6. Making heatmap for trips by base**
 
 ```r
-month_weekday <- df_data %>%
-  group_by(month, dayofweek) %>%
-  dplyr::summarize(Total = n())
+uber$DayOfWeek <- weekdays(uber$Date)
+heatmap_data <- table(uber$Base, uber$DayOfWeek)
+heatmap_data <- as.data.frame(heatmap_data)
+colnames(heatmap_data) <- c("Base", "DayOfWeek", "Count")
+heatmap_data$DayOfWeek <- factor(heatmap_data$DayOfWeek, levels = c("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"))
 
-write.csv(month_weekday, "month_weekday.csv", row.names = FALSE)
-
-ggplot(month_weekday, aes(month, Total, fill = dayofweek)) + 
-  geom_bar( stat = "identity", position = "dodge") +
-  ggtitle("Trips by Day and Month") +
-  scale_y_continuous(labels = comma) +
-  scale_fill_manual(values = colors)
+trips_by_bases_week_heatmap <- ggplot(heatmap_data, aes(x = DayOfWeek, y = Base, fill = Count)) +
+  geom_tile() +
+  scale_fill_gradient(low = "darkorange", high = "darkblue") +  # Custom color gradient
+  labs(x = "Day of Week", y = "Base", title = "Uber Trips by Base and Day of Week") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
 
@@ -238,21 +246,3 @@ ggplot(day0fweek_bases, aes(Base, dayofweek, fill = Total)) +
   geom_tile(color = "white") +
   ggtitle("Heat Map by Bases and Day of Week")
 ```
-
-**15. Prediction model**
-
-
-```r
-prediction_model <- df_data %>%
-  group_by(hour, month, day, dayofweek) %>%
-  summarise(Total_Trips = n())
-
-write.csv(prediction_model, "prediction_model.csv", row.names = FALSE)
-
-#graphing the model
-ggplot(prediction_model, aes(x = month, y = Total_Trips, color = factor(day =="Sat"))) +
-  geom_point(size = 3) +
-  scale_color_manual(values = c("darkblue", "violet"), guide = "none")+
-  labs(color = "day == Sat")
-```
-[ShinyApp] (https://kienkcp.shinyapps.io/UberAnalysis/)
