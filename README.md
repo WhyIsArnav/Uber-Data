@@ -2,9 +2,7 @@
 
 ## Author: Arnav Shrestha
 
-<div align = "center">
-<img src ="Images/UberImage.jpeg" width = "450")
-</div>
+<img src ="Images/UberImage.png" width = "450")
 
 ## Overview:
 This project looks at Uber data at a certain location and tries to analyze various insights and questions related to the dataset like trips by the hour, Trips by Hour and Month, Trips Every Hour, trips by Day and Month, Trips by Bases and Month, and various heatmaps. 
