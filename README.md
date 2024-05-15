@@ -2,7 +2,7 @@
 
 ### Author: Arnav Shrestha
 
-<div align = "center">
+<div>
 <img src ="Images/UberImage.png" width = "450")>
 </div>
 
