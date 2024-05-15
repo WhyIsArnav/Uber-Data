@@ -2,7 +2,7 @@
 
 ## Author: Arnav Shrestha
 
-<img src ="Images/UberImage" width = "450")
+<img src ="Images/UberImage.png" width = "450")
 
 ## Overview:
 This project looks at Uber data at a certain location and tries to analyze various insights and questions related to the dataset like trips by the hour, Trips by Hour and Month, Trips Every Hour, trips by Day and Month, Trips by Bases and Month, and various heatmaps. 
@@ -21,42 +21,44 @@ The columns that were used are:
 - Minute
 - Day of week 
 
-### Cleaning data
+## Data Cleaning 🧹
 
 **1. Put all csv file into one single dataframe**
 
 ```r
 
-apr_data <- read.csv("uber-raw-data-apr14.csv")
-may_data <- read.csv("uber-raw-data-may14.csv")
-jun_data <- read.csv("uber-raw-data-jun14.csv")
-jul_data <- read.csv("uber-raw-data-jul14.csv")
-aug_data <- read.csv("uber-raw-data-aug14.csv")
-sep_data <- read.csv("uber-raw-data-sep14.csv")
+df1 <- read.csv("uber-raw-data-apr14.csv")
+df2 <- read.csv("uber-raw-data-may14.csv")
+df3 <- read.csv("uber-raw-data-jun14.csv")
+df4 <- read.csv("uber-raw-data-jul14.csv")
+df5 <- read.csv("uber-raw-data-aug14.csv")
+df6 <- read.csv("uber-raw-data-sep14.csv")
 
-df_data <- rbind(apr_data,may_data, jun_data, jul_data, aug_data, sep_data)
+uber <- rbind(df1,df2,df3,df4,df5,df6)
 ```
 
-**2. Fix the date and time format so that we can separate them by using POSIXct**
+**2. Fix the date and time format and use the mutate function**
 
 ```r
-df_data$Date.Time <- as.POSIXct(df_data$Date.Time, format = "%m/%d/%Y %H:%M:%S")
+uber$Date.Time <- as.POSIXct(strptime(uber$Date.Time, "%m/%d/%Y %H:%M:%S"))
+uber$Date <- as.Date(uber$Date.Time)
+uber$Time <- format(uber$Date.Time, "%H:%M:%S")
 
-df_data$Time <- format(as.POSIXct(df_data$Date.Time, format = "%m/%d/%Y %H:%M:%S"), format="%H:%M:%S")
+uber <- uber %>%
+  mutate(Month = format(Date.Time, "%m"),
+         Day = format(Date.Time, "%d"),
+         Year = format(Date.Time, "%Y"),
+         Hour = format(Date.Time, "%H"),
+         Minute = format(Date.Time, "%M"))
 
-df_data$Date.Time <- ymd_hms(df_data$Date.Time)
-
-df_data$day <- factor(day(df_data$Date.Time))
-df_data$month <- factor(month(df_data$Date.Time, label = TRUE))
-df_data$year <- factor(year(df_data$Date.Time))
-df_data$dayofweek <- factor(wday(df_data$Date.Time, label = TRUE))
-
-df_data$hour <- factor(hour(hms(df_data$Time)))
-df_data$minute <- factor(minute(hms(df_data$Time)))
-df_data$second <- factor(second(hms(df_data$Time)))
+uber$Month <- as.numeric(uber$Month)
+uber$Day <- as.numeric(uber$Day)
+uber$Year <- as.numeric(uber$Year)
+uber$Hour <- as.numeric(uber$Hour)
+uber$Minute <- as.numeric(uber$Minute)
 ```
 
-### Data Analysis:
+## Data analysis 
 **1. Making pivot table for trips by hour and graph**
 ```r
 hour_data <- df_data %>%
