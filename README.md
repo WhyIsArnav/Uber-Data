@@ -157,92 +157,70 @@ trips_by_bases_week_heatmap <- ggplot(heatmap_data, aes(x = DayOfWeek, y = Base,
 ```
 
 
-**7. Making graph for each base**
+**7. Making heatmap for month and base**
 
 
 ```r
-ggplot(df_data, aes(Base)) + 
-  geom_bar(fill = "cyan2") +
-  scale_y_continuous(labels = comma) +
-  ggtitle("Trips by Bases")
+trips_by_month_day <- uber %>%
+  group_by(Month = format(Date.Time, "%m"),  # Extract month as two-digit numeric format
+           Day = as.integer(format(Date.Time, "%d"))) %>%  # Extract day of the month as integer
+  summarise(Trip_Count = n()) %>%
+  ungroup()
+
+trips_by_month_day_heatmap <- ggplot(trips_by_month_day, aes(x = Day, y = Month, fill = Trip_Count)) +
+  geom_tile() +
+  scale_fill_gradient(low = "white", high = "steelblue") +
+  labs(x = "Day of Month", y = "Month", fill = "Number of Trips") +
+  theme_minimal() +
+  ggtitle("Uber Trips Heatmap by Month and Day")
 ```
 
-**8. Making graph for each base each month**
+**8. Making meat map for trip by hour**
 
 ```r
-ggplot(df_data, aes(Base, fill = month)) + 
-  geom_bar(position = "dodge") +
-  scale_y_continuous(labels = comma) +
-  ggtitle("Trips by Bases and Month") +
-  scale_fill_manual(values = colors)
+trips_by_hour_day <- uber %>%
+  group_by(Day = as.integer(format(Date.Time, "%d")),  # Extract day of the month as integer
+           Hour = as.numeric(format(Date.Time, "%H"))) %>%  # Extract hour as numeric
+  summarise(Trip_Count = n()) %>%
+  ungroup()
+
+trips_by_hour_day_heatmap <- ggplot(trips_by_hour_day, aes(x = Day, y = Hour, fill = Trip_Count)) +
+  geom_tile() +
+  scale_fill_gradient(low = "green", high = "red") +  # Use red and green color gradient
+  labs(x = "Day of Month", y = "Hour of Day", fill = "Number of Trips") +
+  theme_minimal() +
+  ggtitle("Uber Trips Heatmap by Hour and Day of Month")
 ```
 
-**9. Making graph for each base each day of the week**
 
+**9. Making geospatial heatmap **
 
 ```r
-ggplot(df_data, aes(Base, fill = dayofweek)) + 
-  geom_bar(position = "dodge") +
-  scale_y_continuous(labels = comma) +
-  ggtitle("Trips by Bases and DayofWeek") +
-  scale_fill_manual(values = colors)
-```
+heatmap_data <- uber %>%
+  group_by(Lat, Lon, Hour) %>%
+  summarise(Count = n())
 
-**10. Making pivot and heat map for each day and hour**
-
-```r
-day_and_hour <- df_data %>%
-  group_by(day, hour) %>%
-  dplyr::summarize(Total = n())
-
-
-ggplot(day_and_hour, aes(day, hour, fill = Total)) +
-  geom_tile(color = "white") +
-  scale_fill_gradient(low="pink", high="violet") +
-  ggtitle("Heat Map by Hour and Day")
-```
-
-**11. Make heat map for each day and month**
-
-```r
-ggplot(day_month_group, aes(day, month, fill = Total)) +
-  geom_tile(color = "white") +
-  scale_fill_gradient(low="lightblue", high="darkblue") +
-  ggtitle("Heat Map by Month and Day")
-```
-
-**12. Make heat map for each day of the week and month**
-
-```r
-ggplot(month_weekday, aes(dayofweek, month, fill = Total)) +
-  geom_tile(color = "white") +
-  ggtitle("Heat Map by Month and Day of Week")
+geospatial_map <- leaflet() %>%
+  addTiles() %>%
+  addHeatmap(
+    data = heatmap_data,
+    lng = ~Lon, 
+    lat = ~Lat,  
+    intensity = ~Count, 
+    blur = 20,    
+    radius = 15,
+    minOpacity = 0.1,  
+    max = max(heatmap_data$Count)  
+  ) %>%
+  addLegend(
+    position = "bottomright",  
+    pal = colorNumeric(palette = "viridis", domain = heatmap_data$Count),  
+    values = heatmap_data$Count,  
+    title = "Number of Trips"  
+  )
 
 ```
 
 
-**13. Make heat map for bases and month**
 
-```r
-month_base <-  df_data %>%
-  group_by(Base, month) %>%
-  dplyr::summarize(Total = n()) 
 
-day0fweek_bases <-  df_data %>%
-  group_by(Base, dayofweek) %>%
-  dplyr::summarize(Total = n()) 
-
-ggplot(month_base, aes(Base, month, fill = Total)) +
-  geom_tile(color = "white") +
-  scale_fill_gradient(low="#06aa85", high="#0590f5") +
-  ggtitle("Heat Map by Month and Bases")
-
-```
-
-**14. Make heat map for bases and day of the week**
-
-```r
-ggplot(day0fweek_bases, aes(Base, dayofweek, fill = Total)) +
-  geom_tile(color = "white") +
-  ggtitle("Heat Map by Bases and Day of Week")
-```
