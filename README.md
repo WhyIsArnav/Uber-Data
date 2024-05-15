@@ -2,13 +2,28 @@
 
 ## Author: Arnav Shrestha
 
-![image](https://user-images.githubusercontent.com/118495124/232948616-b19e9d8a-2a2e-44a9-af0f-790f1a1525e1.png)
-
+<div align = "center">
+<img src ="Images/UberImage.jpeg" width = "450")
+</div>
 
 ## Overview:
-  I will be doing an analysis base on 6 raw datasets of the uber riders in a location and see when will be the times with the most riders, what time during the month and how uber can oiptimize to prepare for the rush hour.
+This project looks at Uber data at a certain location and tries to analyze various insights and questions related to the dataset like trips by the hour, Trips by Hour and Month, Trips Every Hour, trips by Day and Month, Trips by Bases and Month, and various heatmaps. 
 
-### Cleaning data:
+## Directory 📖
+The columns that were used are: 
+- Lat
+- Long
+- Base
+- Date
+- Time
+- Month
+- Day
+- Year
+- Hour
+- Minute
+- Day of week 
+
+### Cleaning data
 
 **1. Put all csv file into one single dataframe**
 
